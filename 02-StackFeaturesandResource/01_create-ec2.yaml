@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template to create EC2 Instances
+
+Resources:
+  MyEC2Instance: #An inline comment
+    Type: AWS::EC2::Instance
+    Properties: 
+      ImageId: "ami-026b57f3c383c2eec"
+      InstanceInitiatedShutdownBehavior: stop
+      InstanceType: "t2.micro"
+      KeyName: ec2_key_pair

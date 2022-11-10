@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Stack to create EC2 Instance using Conditions
+
+Parameters:
+  EC2KeyName:
+    Description: Select Key Pair for EC2 Instances
+    Type: AWS::EC2::KeyPair::KeyName
+  EnvironmentName:
+    Description: Select the Environmet
+    Type: String
+    Default: dev
+    AllowedValues:
+      - prod
+      - uat
+      - dev
+    ConstraintDescription: Must be dev, prod or qa
+
+Mappings:
+  RegionalAMIMapping:
+    us-east-1:
+      amiId: ami-026b57f3c383c2eec
+    us-east-2:
+      amiId: ami-0f924dc71d44d23e2
+    ap-south-1:
+      amiId: ami-01216e7612243e0ef
+  MyInstanceTypeMap:
+    prod:
+      instanceType: t2.micro
+    uat:
+      instanceType: t2.small
+    dev:
+      instanceType: t2.large
+
+Conditions:
+  CreateEIPforProd: !Equals [!Ref EnvironmentName, prod]
+  CreateDevSecurityGroup: !Equals [!Ref EnvironmentName, dev]
+
+
+Resources:
+  LinuxInstances:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionalAMIMapping, !Ref AWS::Region, amiId]
+      InstanceType: !FindInMap [MyInstanceTypeMap, !Ref EnvironmentName, instanceType]
+      KeyName: !Ref EC2KeyName
+      SecurityGroups: !If [CreateDevSecurityGroup, [!Ref DevEnvSecurityGroup], !Ref 'AWS::NoValue'] ## Pseudo-Parameter - AWS::NoValue
+  
+  AllocateEIP:
+    Type: AWS::EC2::EIP
+    Condition: CreateEIPforProd
+    Properties:
+      InstanceId: !Ref LinuxInstances
+  
+  DevEnvSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateDevSecurityGroup
+    Properties:
+      GroupDescription: Dev Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0

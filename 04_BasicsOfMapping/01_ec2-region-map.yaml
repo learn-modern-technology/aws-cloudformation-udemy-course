@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Stack to create EC2 Instance using Map
+
+Parameters:
+  EC2KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select the KeyPair
+  EnvironmentName:
+    Type: String
+    Description: Select the Environment from drop down
+    Default: DEV
+    AllowedValues:
+      - DEV
+      - UAT
+      - PROD
+
+Mappings:
+  AmiMapforRegion:
+    us-east-1:
+      AmiId: ami-026b57f3c383c2eec
+    us-east-2:
+      AmiId: ami-0f924dc71d44d23e2
+    ap-south-1:
+      AmiId: ami-01216e7612243e0ef
+
+  MapInstanceType:
+    PROD:
+      instanceType: t2.large
+    UAT:
+      instanceType: t2.small
+    DEV:
+      instanceType: t2.micro
+
+Resources:
+  EC2LinuxInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [AmiMapforRegion, !Ref AWS::Region, AmiId]
+      InstanceType: !FindInMap [MapInstanceType, !Ref EnvironmentName, instanceType]
+      KeyName: !Ref EC2KeyName

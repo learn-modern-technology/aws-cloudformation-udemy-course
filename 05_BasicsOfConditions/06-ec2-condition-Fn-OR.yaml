@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Create Stack to create EC2 Instance using Conditions
+
+Parameters:
+  EC2KeyName:
+    Description: Select Key Pair for EC2 Instances
+    Type: AWS::EC2::KeyPair::KeyName
+  EnvironmentName:
+    Description: Select the Environmet
+    Type: String
+    Default: dev
+    AllowedValues:
+      - prod
+      - uat
+      - dev
+    ConstraintDescription: Must be dev, prod or qa
+
+Mappings:
+  RegionalAMIMapping:
+    us-east-1:
+      amiId: ami-026b57f3c383c2eec
+    us-east-2:
+      amiId: ami-0f924dc71d44d23e2
+    ap-south-1:
+      amiId: ami-01216e7612243e0ef
+  MyInstanceTypeMap:
+    PROD:
+      instanceType: t2.micro
+    UAT:
+      instanceType: t2.small
+    DEV:
+      instanceType: t2.large
+
+Conditions:
+  CreateEIPforProd: !Equals [!Ref EnvironmentName, prod]
+  CreateProdSecurityGroup: !Equals [!Ref EnvironmentName, prod]
+  CreateDevSecurityGroup: !Not [{Condition: CreateProdSecurityGroup}]
+  IfRegionisinUseKeyName: !Or [!Equals [!Ref 'AWS::Region', us-east-1], !Equals [!Ref 'AWS::Region', ap-south-1]]
+
+Resources:
+  LinuxInstances:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap [RegionalAMIMapping, !Ref AWS::Region, amiId]
+      InstanceType: !FindInMap [MyInstanceTypeMap, !Ref EnvironmentName, instanceType]
+      KeyName: !If [IfRegionisinUseKeyName, ec2_key_pair, us-east-ohio-key]
+      SecurityGroups: !If [CreateDevSecurityGroup, [!Ref DevEnvSecurityGroup], [!Ref ProdEnvSecurityGroup]]
+  
+  AllocateEIP:
+    Type: AWS::EC2::EIP
+    Condition: CreateEIPforProd
+    Properties:
+      InstanceId: !Ref LinuxInstances
+  
+  DevEnvSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateDevSecurityGroup
+    Properties:
+      GroupDescription: Dev Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  ProdEnvSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: CreateProdSecurityGroup
+    Properties:
+      GroupDescription: Prod Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0

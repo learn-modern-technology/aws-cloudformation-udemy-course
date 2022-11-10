@@ -1,0 +1,112 @@
+### To understand the basics of YAML Files.
+## The below content shows the different Key: Value Pairs supported on YAML.
+## YAML supports different parameters - String, Integer, Float, boolean, Date ISO Format, 
+Name: Dave
+Age: 29
+Gpa: 8.5
+Occupation: Engineer
+State: 'New Jersey'
+AboutMe: "I am a software engineer"
+Male: true
+DateOfBith: 1990-09-15T15:53:00
+PoliceCases: null
+
+---
+## The below content shows the YAML lists 
+Persons:
+  - Dave
+  - John
+  - Mike  
+## Persons: [Dave, John, Mike]
+
+---
+## The below content shows the YAML Dictionary
+Dave:
+  Age: 25
+  Occupation: Engineer
+  State: New Jersey
+  gpa: 4.5
+  male: true
+
+---
+## The below content shows the YAML Lists And each Lists contain dictionaries
+Persons:
+  - Dave:
+      Age: 25
+      Occupation: Engineer
+      State: California
+  - John:
+      Age: 25
+      Occupation: Plumber
+      State: Florida
+  - Mike:
+      Age: 30
+      Occupation: Carpenter
+      State: Texas
+
+---
+#YAML lists containing dictionaries containing lists
+## YAML Dictionaries are set of properties grouped together under an item
+## YAML Dictionaries contain key value pairs
+## Dash indicates that it’s a element of an array.
+## All members of a list are lines beginning at the same indentation level starting with a ”-” (a dash and a space)
+## Block Sequence indicate each entry with a dash and space
+## Flow Sequence is written as a comma separated list within square brackets
+Persons:
+  - Dave:
+      Age: 25
+      Occupation: Engineer
+      State: California
+      Degrees: ## This is the YAML Lists
+        - Bachelors
+        - Masters
+        - Phd
+  - John:
+      Age: 25
+      Occupation: Plumber
+      State: Florida
+      Degrees: [Bachelors, Masters]  ## This is the YAML Flow Sequence
+  - Mike:
+      Age: 30
+      Occupation: Carpenter
+      State: Texas
+      Degrees:
+       - Masters  
+
+---
+#YAML Pipe
+## The pipe notation, also referred to as literal block
+## All new lines, indentation, extra spaces everything preserved as is.
+Dave:
+  Age: 25
+  Occupation: Engineer
+  State: New Jersey
+  gpa: 4.5
+  male: true
+  Address: |            ## This will ensure the multi-line Address is preserved as is
+    201 ABC Street
+    Newark
+    New Jersey 07102
+    999-999-9999
+
+---
+#YAML Greater than Sign
+## The greater than sign notation, also referred to as folded block.
+## Renders the text as a single line.
+## All new lines will be replaced with a single space.
+## Blank lines are converted to new line character
+Dave:
+  Age: 25
+  Occupation: Engineer
+  State: New Jersey
+  gpa: 4.5
+  male: true
+  ## This will put everything in the same line seperated by spaces.
+  ## This will also convert line space into a new line character
+  AboutMe: > 
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Curabitur tellus mi, consectetur id lorem nec, molestie 
+    malesuada tellus. 
+    Etiam lacinia nisi non consequat sodales. 
+    Integer nec mauris in quam fringilla pharetra et ac tortor. 
+    Duis odio odio, sodales vel consequat ut, sollicitudin.

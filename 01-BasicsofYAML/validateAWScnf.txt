@@ -1,0 +1,2 @@
+aws cloudformation validate-template --template-url create-ec2.yaml
+aws cloudformation validate-template --template-url file:///c/Users/Sudhanshu/gitrepository/complete-guide-for-cloudformation/create-ec2.yaml
